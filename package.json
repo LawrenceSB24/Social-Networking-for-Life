@@ -1,0 +1,19 @@
+{
+  "name": "social-networking-for-life",
+  "version": "1.0.0",
+  "description": "A social network web application that uses Express.js, MongoDB, and Mongoose ODM. Allows users to share thoughts, react to friends thoughts and create friend lists",
+  "main": "index.js",
+  "license": "Eclipse Public v 2.0",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index",
+    "seed": "node utils/seed"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "mongoose": "^6.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
