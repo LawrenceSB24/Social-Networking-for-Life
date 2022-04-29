@@ -2,22 +2,22 @@
 const {ObjectId} = require('mongoose').Types;
 const {User, Thoughts} = require('../models');
 
-// Aggregate function for retrieving number of users overall
-const userCount = async () => {
-    User.aggregate()
-        .count('userCount')
-        .then((numberOfUsers) => numberOfUsers);
+// Aggregate function to get the number of users
+const userCount = async () => { 
+    User.aggregate().count('userCount').then((numberOfUsers) => numberOfUsers);
 };
 
-// Aggregate function for getting thoughts from user
-const thought = async (userId) => {
-    User.aggregate([
-        {$match: {_id: ObjectId(userId)} },
+// Aggregate function to get all thoughts from the user 
+const think = async (userId) => {
+    Thoughts.aggregate([
+        {$match: {_id: ObjectId(userId)}},
         {$unwind: '$thoughts'},
-        {$group: {
-            _id: ObjectId(userId),
-            userThought: {$push: '$thoughts.thoughtText'}
-        }}
+        {
+            $group: {
+                _id: ObjectId(userId),
+                thoughts: {$accumulator: '$thoughts.thoughtText'}
+            }
+        }
     ])
 };
 
@@ -25,79 +25,102 @@ module.exports = {
     // Get all users
     getUsers(req, res) {
         User.find()
-            .then(async (users) => {
-                const userObj = {
-                    users,
-                    userCount: await userCount()
-                };
-                return res.json(userObj);
-            })
-            .catch((err) => {
-                console.err(err);
-                return res.status(500).json('Users not found');
-            });
+        .then(async (users) => {
+            const userObj = {
+                users,
+                userCount: await userCount()
+            };
+            return res.json(userObj);
+        })
+        .catch((err) => {
+            console.err(err);
+            return res.status(500).json(err);
+        });
     },
 
-    // Get a single user (Only sigle user functionality for now)
-    getSoloUser(req, res) {
+    // Get a single user
+    getSingleUser(req, res) {
         User.findOne({_id: req.params.userId})
-            .select('-__v')
+            .select('-_v')
             .then(async (user) => {
                 !user
-                    ? res.status(404).json({message: 'No user with this ID found'})
-                    : res.json({user})
+                    ? res.status(404).json({message: 'No user discovered with this id'})
+                    : res.json({
+                        user,
+                        thoughts: await think(req.params.userId)
+                    })
             })
             .catch((err) => {
-                console.err(err);
-                return res.status(500).json('Users not found');
+                console.log(err);
+                return res.status(500).json(err);
             });
     },
 
-    // Create a new user
+    // Creates a new user
     createUser(req, res) {
         User.create(req.body)
             .then((user) => res.json(user))
-            .catch((err) => res.status(500).json(err))
+            .catch((err) => res.status(500).json(err));
     },
 
-    // Delete a user (adding thought deletion later)
-    deleteUser(req, res) {
-        User.findOneAndRemove({_id: req.params.userId})
-        .then((user) => {
-            !user
-                ? res.status(404).json({message: 'No user with this ID found'})
-                : Thoughts.findOneAndUpdate(
-                    {users: req.params.userId},
-                    {$pull: {users: req.params.userId}},
-                    {new: true}
-                )
-        })
-        .then((thoughts) => 
-            !thoughts
-                ? res.status(404).json({message: 'User removed, but thought remains'})
-                : res.json({message: 'User successfully deleted'})   
-        )
-        .catch((err) => {
-            console.err(err);
-            return res.status(500).json(err);
-        });
-    },
-
-    // Update a user by their id
+    // Updates an existing user given the user's id
     updateUser(req, res) {
         User.findOneAndUpdate({_id: req.params.userId})
+            .then((user) => req.json(user))
+            .catch((err) => res.status(500).json(err));
+    },
+
+    // Deletes a user and removes them from the database
+    deleteUser(req, res) {
+        User.findOneAndRemove({_id: req.params.userId})
+            .then((user) => {
+                !user
+                    ? res.status(404).json({message: 'No user discovered with this id'})
+                    : Thoughts.findOneAndUpdate(
+                        {users: req.params.userId},
+                        {$pull: {users: req.params.userId}},
+                        {new: true}
+                    )
+            })
+
+            .then((thoughts) => {
+                !thoughts
+                    ? res.status(404).json({message: 'User removed but, their thoughts are still part of the collective'})
+                    : res.json({message: 'User has been set free'})
+            })
+
+            .catch((err) => res.status(500).json(err));
+    },
+
+    // User can add a friend to their friend list
+    addFriend(req, res) {
+        console.log('Friend added to your list');
+        console.log(req.body);
+        User.findOneAndUpdate(
+            {_id: req.params.userId},
+            {$pull: {thoughts: {thoughtId: req.params.thoughtId}}},
+            {runValidators: true, new: true}
+        )
         .then((user) => {
             !user
-                ? res.status(404).json({message: 'User with this ID not found'})
-                : res.json({message: `${user} has been updated!`})
+                ? res.status(404).json({message: 'No user discovered with this id'})
+                : res.json(user)
         })
-        .catch((err) => {
-            console.err(err);
-            return res.status(500).json(err);
-        });
-    }
-};
+        .catch((err) => res.status(500).json(err));
+    },
 
-// DISCLAIMER: Im not quite sure if this is the correct format as code is
-// based on mini-project for student API. Theory is sound but syntax and
-// functionality potentially incorrect.
+    // Removes a friend from a user's friend list
+    removeFriend(req, res) {
+        User.findOneAndRemove(
+            {_id: req.params.userId},
+            {$pull: {thoughts: {thoughtId: req.params.thoughtId}}},
+            {runValidators: true, new: true}
+        )
+        .then((user) => {
+            !user
+                ? res.status(404).json({message: 'No user discovered with this id'})
+                : res.json(user)
+        })
+        .catch((err) => res.status(500).json(err));
+    }
+}
