@@ -1,7 +1,5 @@
 // Controller file for user thoughts and reactions
 
-const router = require('express').Router();
-
 // Exporting modules for User and Thoughts
 const {User, Thoughts} = require('../models');
 
