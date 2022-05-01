@@ -15,12 +15,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            validate: {
-                validator: (v) => {
-                    return `/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6}$/`.test(v);
-                },
-                message: props => `${props.value} is not a valid email address!`
-            }
+            match: [/^\w+([\.-]?\w)*@\w+([\.-]?\w+)*(\.\w{2, 3})+$/, 'Please enter a valid email for the stchives']
         },
         thoughts: [
             {
