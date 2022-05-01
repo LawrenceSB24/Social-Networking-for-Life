@@ -1,30 +1,33 @@
 // Controller file for user information
-const {ObjectId} = require('mongoose').Types;
+// const {ObjectId} = require('mongoose').Types;
 const {User, Thoughts} = require('../models');
 
-// Aggregate function to get the number of users
-const userCount = async () => { 
-    User.aggregate().count('userCount').then((numberOfUsers) => numberOfUsers);
-};
+// // Aggregate function to get the number of users
+// const userCount = async () => { 
+//     User.aggregate().count('userCount').then((numberOfUsers) => numberOfUsers);
+// };
 
-// Aggregate function to get all thoughts from the user 
-const think = async (userId) => {
-    Thoughts.aggregate([
-        {$match: {_id: ObjectId(userId)}},
-        {$unwind: '$thoughts'},
-        {
-            $group: {
-                _id: ObjectId(userId),
-                thoughts: {$accumulator: '$thoughts.thoughtText'}
-            }
-        }
-    ])
-};
+// // Aggregate function to get all thoughts from the user 
+// const think = async (userId) => {
+//     Thoughts.aggregate([
+//         {$match: {_id: ObjectId(userId)}},
+//         {$unwind: '$thoughts'},
+//         {
+//             $group: {
+//                 _id: ObjectId(userId),
+//                 thoughts: {$accumulator: '$thoughts.thoughtText'}
+//             }
+//         }
+//     ])
+// };
 
-module.exports = {
+const userControl = {
+
     // Get all users
     getUsers(req, res) {
-        User.find()
+        User.find({})
+        .select('-__v')
+        .sort({_id: -1})
         .then(async (users) => {
             const userObj = {
                 users,
@@ -41,7 +44,15 @@ module.exports = {
     // Get a single user
     getSingleUser(req, res) {
         User.findOne({_id: req.params.userId})
-            .select('-_v')
+            .populate({
+                path: 'thoughts',
+                select: '-__v'
+            })
+            .populate({
+                path: 'friends',
+                select: '-__v'
+            })
+            .select('-__v')
             .then(async (user) => {
                 !user
                     ? res.status(404).json({message: 'No user discovered with this id'})
@@ -65,22 +76,22 @@ module.exports = {
 
     // Updates an existing user given the user's id
     updateUser(req, res) {
-        User.findOneAndUpdate({_id: req.params.userId})
+        User.findOneAndUpdate(
+            {_id: req.params.userId},
+            {$set: req.body},
+            {runValidators: true, new: true}
+            )
             .then((user) => req.json(user))
             .catch((err) => res.status(500).json(err));
     },
 
     // Deletes a user and removes them from the database
     deleteUser(req, res) {
-        User.findOneAndRemove({_id: req.params.userId})
+        User.findOneAndDelete({_id: req.params.userId})
             .then((user) => {
                 !user
                     ? res.status(404).json({message: 'No user discovered with this id'})
-                    : Thoughts.findOneAndUpdate(
-                        {users: req.params.userId},
-                        {$pull: {users: req.params.userId}},
-                        {new: true}
-                    )
+                    : Thoughts.deleteMany({_id: user.thoughts})
             })
 
             .then((thoughts) => {
@@ -98,13 +109,13 @@ module.exports = {
         console.log(req.body);
         User.findOneAndUpdate(
             {_id: req.params.userId},
-            {$pull: {thoughts: {thoughtId: req.params.thoughtId}}},
+            {$push: {friends: {friendId: req.params.friendId}}},
             {runValidators: true, new: true}
         )
-        .then((user) => {
-            !user
+        .then((friend) => {
+            !friend
                 ? res.status(404).json({message: 'No user discovered with this id'})
-                : res.json(user)
+                : res.json(friend)
         })
         .catch((err) => res.status(500).json(err));
     },
@@ -113,7 +124,7 @@ module.exports = {
     removeFriend(req, res) {
         User.findOneAndRemove(
             {_id: req.params.userId},
-            {$pull: {thoughts: {thoughtId: req.params.thoughtId}}},
+            {$pull: {friends: {friendId: req.params.friendId}}},
             {runValidators: true, new: true}
         )
         .then((user) => {
@@ -123,4 +134,7 @@ module.exports = {
         })
         .catch((err) => res.status(500).json(err));
     }
-}
+};
+
+module.exports = userControl;
+

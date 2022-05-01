@@ -3,7 +3,7 @@
 // Exporting modules for User and Thoughts
 const {User, Thoughts} = require('../models');
 
-module.exports = {
+const thoughtControl = {
 
     // Retrieves all user thoughts
     getThoughts(req, res) {
@@ -16,6 +16,7 @@ module.exports = {
     getSingleThought(req, res) {
         Thoughts.findOne({_id: req.params.thoughtId})
         .select('-_v')
+        .sort({createdAt: -1})
         .then((thought) => {
             !thought
                 ? res.status(404).json({message: 'No thought found in the collective'})
@@ -27,7 +28,14 @@ module.exports = {
     // Creates a thought
     createThought(req, res) {
         Thoughts.create(req.body)
-        .then((thought) => res.json(thought))
+        .then((thought) => {
+            User.findOneAndUpdate(
+                {_id: req.params.userId},
+                {$push: {thoughts: req.params.thoughtId}},
+                {runValidators: true, new: true}
+            )
+            res.json(thought);
+        })
         .catch((err) => {
             console.log(err);
             return res.status(500).json(err)
@@ -67,13 +75,13 @@ module.exports = {
         console.log(req.body);
         Thoughts.findOneAndUpdate(
             {_id: req.params.thoughtId},
-            {$pull: {thoughts: {thoughtId: req.params.thoughtId}}},
+            {$push: {reactions: req.body}},
             {runValidators: true, new: true}
         )
-        .then((reaction) => {
-            !reaction
+        .then((thought) => {
+            !thought
                 ? res.status(404).json({message: 'Reaction has been rejected by the collective'})
-                : res.json(reaction)
+                : res.json(thought)
         })
         .catch((err) => res.status(500).json(err));
     },
@@ -82,17 +90,19 @@ module.exports = {
     removeReaction(req, res) {
         Thoughts.findOneAndRemove(
             {_id: req.params.thoughtId},
-            {$pull: {thoughts: {thoughtId: req.params.thoughtId}}},
+            {$pull: {reactions: {reactionId: req.params.reactionId}}},
             {runValidators: true, new: true}
         )
-        .then((reaction) => {
-            !reaction
-                ? res.status(404).json({message: 'Reaction has been rejected by the collective'})
-                : res.json(reaction)
+        .then((thought) => {
+            !thought
+                ? res.status(404).json({message: 'Action has been rejected by the collective'})
+                : res.json(thought)
         })
         .catch((err) => res.status(500).json(err));
     }
 };
+
+module.exports = thoughtControl;
 
 // **DISCLAIMER**
 // I am not postive that this will work as this is a re-work of the user controller
