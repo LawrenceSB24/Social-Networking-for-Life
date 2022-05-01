@@ -5,6 +5,6 @@ const apiRoutes = require('./api');
 
 router.use('/api', apiRoutes);
 
-router.use((req, res) = res.send('Wrong path in the collective. Turn back now!'));
+router.use((req, res) => res.send('Wrong path in the collective. Turn back now!'));
 
 module.exports = router;
