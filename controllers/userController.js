@@ -29,10 +29,7 @@ const userControl = {
         .select('-__v')
         .sort({_id: -1})
         .then(async (users) => {
-            const userObj = {
-                users,
-                userCount: await userCount()
-            };
+            const userObj = {users};
             return res.json(userObj);
         })
         .catch((err) => res.status(500).json(err));
@@ -53,10 +50,7 @@ const userControl = {
             .then(async (user) => {
                 !user
                     ? res.status(404).json({message: 'No user discovered with this id'})
-                    : res.json({
-                        user,
-                        thoughts: await think(req.params.userId)
-                    })
+                    : res.json(user)
             })
             .catch((err) => res.status(500).json(err))
     },
