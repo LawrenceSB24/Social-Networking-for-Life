@@ -37,7 +37,7 @@ const thoughtControl = {
             res.json(thought);
         })
         .catch((err) => {
-            console.log(err);
+            console.err(err);
             return res.status(500).json(err)
         });
     },
