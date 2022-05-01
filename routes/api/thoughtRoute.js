@@ -21,7 +21,10 @@ router.route('/:thoughtId').get(getSingleThought).put(updateThought).delete(dele
 
 
 // /api/thoughts/thoughtId/reactions
-router.route('/:thoughtId/reactions').post(addReaction).delete(removeReaction);
+router.route('/:thoughtId/reactions').post(addReaction);
+
+// /api/thoughts/:thoughtId/reactions/reactionId
+router.route('/:thoughtId/reactions/reactionId').delete(removeReaction);
 
 // **DISCLAIMER** These routes are rudimentary and will be updated based on
 // user thought functionality.
