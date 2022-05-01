@@ -29,4 +29,4 @@ If you have any further questions, then you can reach me on my GitHub page or em
 * Email: lawrs2022@github.com
 
 #### Diclaimer ####
-Ok.....so I apologize for this. At the current moment the Insomnia tutorial cannot be presented as there are some route issues present within the application. I am rectifying this issue and it will be resolved soon.
+Ok.....so I apologize for this. At this moment, the user POST method and the GET all users method are the only two working right now. Test for thoughts and friends will be commenced shortly, and users cannot retrieve a single user via their id. I am rectifying this issue and it will be resolved soon.
