@@ -35,10 +35,7 @@ const userControl = {
             };
             return res.json(userObj);
         })
-        .catch((err) => {
-            console.err(err);
-            return res.status(500).json(err);
-        });
+        .catch((err) => res.status(500).json(err));
     },
 
     // Get a single user
@@ -61,10 +58,7 @@ const userControl = {
                         thoughts: await think(req.params.userId)
                     })
             })
-            .catch((err) => {
-                console.err(err);
-                return res.status(500).json(err);
-            });
+            .catch((err) => res.status(500).json(err))
     },
 
     // Creates a new user
