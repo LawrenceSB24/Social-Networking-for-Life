@@ -15,7 +15,7 @@ const thoughtControl = {
     // Retrieves a single thought from the user
     getSingleThought(req, res) {
         Thoughts.findOne({_id: req.params.thoughtId})
-        .select('-_v')
+        .select('-__v')
         .sort({createdAt: -1})
         .then((thought) => {
             !thought
