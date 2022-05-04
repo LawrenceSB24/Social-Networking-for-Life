@@ -1,6 +1,6 @@
 // Schema Model for user reactions
 const { Schema, Types } = require("mongoose");
-
+const moment = require('moment');
 const reactionSchema = new Schema(
   {
     reactionId: {
@@ -22,7 +22,7 @@ const reactionSchema = new Schema(
     createdAt: {
         type: Date,
         default: Date.now,
-        get: creastedAtVal => moment(creastedAtVal).format('MM DD, YYYY [a] hh:mm a')
+        get: creartedAtVal => moment(creartedAtVal).format('MM DD, YYYY [a] hh:mm a')
       },
   
   },
