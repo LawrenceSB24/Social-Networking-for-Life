@@ -29,4 +29,4 @@ If you have any further questions, then you can reach me on my GitHub page or em
 * Email: lawrs2022@github.com
 
 #### Diclaimer ####
-Ok.....so I apologize for this. At this moment, the user and thought POST, GET thought and GET all users methods are fully operational. Test for DELETE thought and all friend methods will be commenced shortly, and users cannot retrieve a single user via their id. I am rectifying this issue and it will be resolved soon.
+Ok.....so heres an update: I have the DELETE routes for User and Thoughts working. Post routes for user and thoughts work. Get all features for users and thoughts work. Now all that needs to be tested is the update routes for user and thoughts, and the routes for the friend list.
