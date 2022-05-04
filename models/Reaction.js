@@ -19,12 +19,13 @@ const reactionSchema = new Schema(
             required: true
         },
 
-        timestamps: {
-            createdAt: {
-              type: Date,
-              default: Date.now,
+        createdAt: {
+            type: Date,
+            default: () =>  {
+              const D = new Date();
+              D.getFullYear("MM/DD/YYYY");
             }
-        }
+          }
     },
     {
         toJSON: {

@@ -15,10 +15,11 @@ const thoughtSchema = new Schema(
     },
 
     // Added timestamps with potential createdAt modification without creating complex function
-    timestamps: {
-      createdAt: {
-        type: Date,
-        default: Date.now,
+    createdAt: {
+      type: Date,
+      default: () =>  {
+        const D = new Date();
+        D.getFullYear("MM/DD/YYYY");
       }
     },
 
