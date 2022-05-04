@@ -17,10 +17,8 @@ const thoughtSchema = new Schema(
     // Added timestamps with potential createdAt modification without creating complex function
     createdAt: {
       type: Date,
-      default: () =>  {
-        const D = new Date();
-        D.getFullYear("MM/DD/YYYY");
-      }
+      default: Date.now,
+      get: createdAtTime => moment(createdAtTime).format("MM/DD/YYYY [a] hh:mm a")
     },
 
     username: {
@@ -33,7 +31,7 @@ const thoughtSchema = new Schema(
   {
     toJSON: {
       getters: true,
-      virtuals: true
+      virtuals: true,
     },
   }
 );
