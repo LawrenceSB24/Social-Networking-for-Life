@@ -72,7 +72,7 @@ const thoughtControl = {
         console.log(req.body);
         Thoughts.findOneAndUpdate(
             {_id: req.params.thoughtId},
-            {$push: {reactions: req.body}},
+            {$addToSet: {reactions: req.body}},
             {runValidators: true, new: true}
         )
         .then((thought) => {
@@ -85,9 +85,9 @@ const thoughtControl = {
 
     // Remove a reaction to thought
     removeReaction(req, res) {
-        Thoughts.findOneAndRemove(
+        Thoughts.findOneAndUpdate(
             {_id: req.params.thoughtId},
-            {$pull: {reactions: {reactionId: req.params.reactionId}}},
+            {$pull: {reactions: req.params.reactionId}},
             {runValidators: true, new: true}
         )
         .then((thought) => {

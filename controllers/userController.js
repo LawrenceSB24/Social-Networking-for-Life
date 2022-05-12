@@ -41,12 +41,15 @@ const userControl = {
             .populate("thoughts")
             .populate("friends")
             .select('-__v')
-            .then(async (user) => {
+            .then((user) => {
                 !user
                     ? res.status(404).json({message: 'No user discovered with this id'})
                     : res.json(user)
             })
-            .catch((err) => res.status(500).json(err))
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            })
     },
 
     // Creates a new user
@@ -91,12 +94,12 @@ const userControl = {
         console.log(req.body);
         User.findOneAndUpdate(
             {_id: req.params.userId},
-            {$push: {friends: {friendId: req.params.friendId}}},
+            {$addToSet: {friends: req.params.friendId}},
             {runValidators: true, new: true}
         )
         .then((friend) => {
             !friend
-                ? res.status(404).json({message: 'No user discovered with this id'})
+                ? res.status(404).json({message: 'No friend discovered with this id'})
                 : res.json(friend)
         })
         .catch((err) => res.status(500).json(err));
@@ -104,14 +107,14 @@ const userControl = {
 
     // Removes a friend from a user's friend list
     removeFriend(req, res) {
-        User.findOneAndRemove(
+        User.findOneAndUpdate(
             {_id: req.params.userId},
-            {$pull: {friends: {friendId: req.params.friendId}}},
+            {$pull: {friends: req.params.friendId}},
             {runValidators: true, new: true}
         )
         .then((user) => {
             !user
-                ? res.status(404).json({message: 'No user discovered with this id'})
+                ? res.status(404).json({message: 'No friend discovered with this id'})
                 : res.json(user)
         })
         .catch((err) => res.status(500).json(err));
