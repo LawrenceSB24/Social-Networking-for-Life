@@ -1,11 +1,16 @@
 // Schema Model for user reactions
+
 const { Schema, Types } = require("mongoose");
+
+// To get the date for reactions in proper format, momment.js was added
 const moment = require('moment');
+
 const reactionSchema = new Schema(
   {
     reactionId: {
       type: Schema.Types.ObjectId,
-      default: () => Types.ObjectId,
+      // Fixed from default: () => Types.ObjectId,
+      default: () => new Types.ObjectId,
     },
 
     reactionBody: {

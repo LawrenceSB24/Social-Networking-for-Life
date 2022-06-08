@@ -16,6 +16,7 @@ const thoughtSchema = new Schema(
     },
 
     // Added timestamps with potential createdAt modification without creating complex function
+    // Uses moment.js
     createdAt: {
       type: Date,
       default: Date.now,
@@ -38,7 +39,8 @@ const thoughtSchema = new Schema(
 );
 
 thoughtSchema.virtual("reactionCount").get(function () {
-  return this.reaction.length;
+  // Fixed from return this.reaction.length;
+  return this.reactions.length;
 });
 
 const Thoughts = model("thoughts", thoughtSchema);
