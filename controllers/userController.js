@@ -1,25 +1,12 @@
 // Controller file for user information
+
+// **UPDATE**
+// Functionality for user and friend actions reviewed and corrected
+// Fully operational!
+
+
 // const {ObjectId} = require('mongoose').Types;
 const {User, Thoughts} = require('../models');
-
-// // Aggregate function to get the number of users
-// const userCount = async () => { 
-//     User.aggregate().count('userCount').then((numberOfUsers) => numberOfUsers);
-// };
-
-// // Aggregate function to get all thoughts from the user 
-// const think = async (userId) => {
-//     Thoughts.aggregate([
-//         {$match: {_id: ObjectId(userId)}},
-//         {$unwind: '$thoughts'},
-//         {
-//             $group: {
-//                 _id: ObjectId(userId),
-//                 thoughts: {$accumulator: '$thoughts.thoughtText'}
-//             }
-//         }
-//     ])
-// };
 
 const userControl = {
 
@@ -27,12 +14,16 @@ const userControl = {
     getUsers(req, res) {
         User.find({})
         .select('-__v')
-        .sort({_id: -1})
+        .sort({createdAt: -1})
         .then(async (users) => {
             const userObj = {users};
             return res.json(userObj);
         })
-        .catch((err) => res.status(500).json(err));
+        // Added error handling
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err)
+        });
     },
 
     // Get a single user
@@ -46,6 +37,7 @@ const userControl = {
                     ? res.status(404).json({message: 'No user discovered with this id'})
                     : res.json(user)
             })
+            // Added error handling
             .catch((err) => {
                 console.log(err);
                 res.status(500).json(err);
@@ -56,7 +48,11 @@ const userControl = {
     createUser(req, res) {
         User.create(req.body)
             .then((user) => res.json(user))
-            .catch((err) => res.status(500).json(err));
+            // Added error handling
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err)
+            });
     },
 
     // Updates an existing user given the user's id
@@ -66,8 +62,13 @@ const userControl = {
             {$set: req.body},
             {runValidators: true, new: true}
             )
-            .then((user) => req.json(user))
-            .catch((err) => res.status(500).json(err));
+            // Fixed from .then((user) => req.json(user))
+            .then((user) => res.json(user))
+            // Added error handling
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err)
+            });
     },
 
     // Deletes a user and removes them from the database
@@ -85,7 +86,11 @@ const userControl = {
                     : res.json({message: 'User has been set free'})
             })
 
-            .catch((err) => res.status(500).json(err));
+            // Added error handling
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err)
+            });
     },
 
     // User can add a friend to their friend list
@@ -102,7 +107,11 @@ const userControl = {
                 ? res.status(404).json({message: 'No friend discovered with this id'})
                 : res.json(friend)
         })
-        .catch((err) => res.status(500).json(err));
+        // Added error handling
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err)
+        });
     },
 
     // Removes a friend from a user's friend list
@@ -117,7 +126,11 @@ const userControl = {
                 ? res.status(404).json({message: 'No friend discovered with this id'})
                 : res.json(user)
         })
-        .catch((err) => res.status(500).json(err));
+        // Added error handling
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err)
+        });
     }
 };
 
