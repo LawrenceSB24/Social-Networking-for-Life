@@ -60,9 +60,9 @@ This section will demostrate how the API can work for your introductory social n
 
 Here is a snapshot of the Insomnia layout: 
 
-Users GET query: [Users-Query](/assets/SNA%20Users.png)
+Users GET query: [Users-Query](/assets/SNA_Users.png)
 
-Thoughts GET query: [Thoughts-Query](/assets/SNA%20Thoughts.png)
+Thoughts GET query: [Thoughts-Query](/assets/SNA_Thoughts.png)
 
 Video to API demo:
 
